@@ -1,0 +1,1 @@
+# Full stack app built with React, GraphQL and TypeScript
