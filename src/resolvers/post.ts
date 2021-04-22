@@ -17,11 +17,13 @@ export class PostResolver {
     return em.findOne(Post, { id });
   }
 
-  @Mutation(() => Post, {nullable: true})
-  createPost(
-    @Arg("id", () => Int) id: number,
+  @Mutation(() => Post)
+  async createPost(
+    @Arg("title") title: string,
     @Ctx() { em }: MyContext
-  ): Promise<Post | null> {
-    return em.findOne(Post, { id });
+  ): Promise<Post> {
+    const post = em.create(Post, {title})
+    await em.persistAndFlush(post)
+    return post
   }
 }
