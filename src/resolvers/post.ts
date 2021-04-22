@@ -9,7 +9,7 @@ export class PostResolver {
     return em.find(Post, {});
   }
 
-  @Query(() => Post, {nullable: true})
+  @Query(() => Post, { nullable: true })
   post(
     @Arg("id", () => Int) id: number,
     @Ctx() { em }: MyContext
@@ -22,8 +22,25 @@ export class PostResolver {
     @Arg("title") title: string,
     @Ctx() { em }: MyContext
   ): Promise<Post> {
-    const post = em.create(Post, {title})
-    await em.persistAndFlush(post)
-    return post
+    const post = em.create(Post, { title });
+    await em.persistAndFlush(post);
+    return post;
+  }
+
+  @Mutation(() => Post, { nullable: true })
+  async updatePost(
+    @Arg("id") id: number,
+    @Arg("title") title: string,
+    @Ctx() { em }: MyContext
+  ): Promise<Post | null> {
+    const post = await em.findOne(Post, { id });
+    if (!post) {
+      return null;
+    }
+    if (typeof title !== 'undefined') {
+      post.title = title;
+      await em.persistAndFlush(post)
+    }
+    return post;
   }
 }
