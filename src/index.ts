@@ -1,4 +1,4 @@
-import "reflect-metadata"
+import "reflect-metadata";
 import { MikroORM } from "@mikro-orm/core";
 import { __prod__ } from "./constants";
 // import { Post } from "./entities/Post";
@@ -18,12 +18,12 @@ const main = async () => {
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
       resolvers: [HelloResolver, PostResolver],
-      validate: false
+      validate: false,
     }),
-    context: () => ({ em: orm.em })
+    context: () => ({ em: orm.em }),
   });
 
-  apolloServer.applyMiddleware({ app })
+  apolloServer.applyMiddleware({ app });
 
   app.listen(4000, () => {
     console.log("server started on localhost:4000");
