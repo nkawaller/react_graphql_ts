@@ -85,7 +85,7 @@ export class UserResolver {
       await em.persistAndFlush(user);
     } catch (error) {
       // duplicate username error
-      if (error.code === "23505" || error.detail.includes("alread exists")) {
+      if (error.detail.includes("alread exists")) {
         return {
           errors: [
             {
