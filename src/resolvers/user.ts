@@ -4,6 +4,7 @@ import {
   Field,
   InputType,
   Mutation,
+  ObjectType,
   Resolver,
 } from "type-graphql";
 import { User } from "../entities/User";
@@ -16,6 +17,23 @@ class UsernamePasswordInput {
   username: string;
   @Field()
   password: string;
+}
+
+@ObjectType()
+class FieldError {
+  @Field()
+  field: string;
+  @Field()
+  message: string;
+}
+
+@ObjectType()
+class UserResponse {
+  @Field(() => [FieldError], { nullable: true })
+  errors?: FieldError[];
+
+  @Field(() => User, { nullable: true })
+  user?: User;
 }
 
 @Resolver()
@@ -32,5 +50,39 @@ export class UserResolver {
     });
     await em.persistAndFlush(user);
     return user;
+  }
+
+  @Mutation(() => UserResponse)
+  async login(
+    @Arg("options") options: UsernamePasswordInput,
+    @Ctx() { em }: MyContext
+  ): Promise<UserResponse> {
+    const user = await em.findOne(User, { username: options.username });
+    if (!user) {
+      return {
+        errors: [
+          {
+            field: "username",
+            message: "that username does not exist",
+          },
+        ],
+      };
+    }
+    const valid = await argon2.verify(user.password, options.password);
+    if (!valid) {
+      return {
+        errors: [
+          {
+            field: "password",
+            message: "passwords do not match",
+          },
+        ],
+      };
+    }
+
+
+    return {
+        user
+    };
   }
 }
