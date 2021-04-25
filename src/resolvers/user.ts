@@ -73,7 +73,7 @@ export class UserResolver {
         return {
           errors: [
             {
-              field: "username",
+              field: "usernameOrEmail",
               message:
                 "That username already exists. Please choose another one",
             },
