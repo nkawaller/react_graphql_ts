@@ -2,7 +2,6 @@ import {
   Arg,
   Ctx,
   Field,
-  InputType,
   Mutation,
   ObjectType,
   Query,
@@ -12,16 +11,9 @@ import { User } from "../entities/User";
 import { MyContext } from "../types";
 import argon2 from "argon2";
 import { COOKIE_NAME } from "../constants";
+import { validateRegister } from "../utils/validateRegister";
+import { UsernamePasswordInput } from "../utils/usernamePasswordInput";
 
-@InputType()
-class UsernamePasswordInput {
-  @Field()
-  email: string;
-  @Field()
-  username: string;
-  @Field()
-  password: string;
-}
 
 @ObjectType()
 class FieldError {
@@ -62,38 +54,12 @@ export class UserResolver {
     @Arg("options") options: UsernamePasswordInput,
     @Ctx() { em, req }: MyContext
   ): Promise<UserResponse> {
-    if (!options.email.includes("@")) {
-      return {
-        errors: [
-          {
-            field: "email",
-            message: "please enter a vaild email address",
-          },
-        ],
-      };
-    }
 
-    if (options.username.length <= 2) {
-      return {
-        errors: [
-          {
-            field: "username",
-            message: "username is too short",
-          },
-        ],
-      };
-    }
+    const errors = validateRegister(options);
+      if (errors) {
+        return {errors}
+      }
 
-    if (options.password.length <= 2) {
-      return {
-        errors: [
-          {
-            field: "password",
-            message: "password is too short",
-          },
-        ],
-      };
-    }
     const hashedPassword = await argon2.hash(options.password);
     const user = em.create(User, {
       username: options.username,
