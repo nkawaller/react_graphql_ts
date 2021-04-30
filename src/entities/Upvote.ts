@@ -9,28 +9,23 @@ import {
   ManyToOne,
   PrimaryColumn,
 } from "typeorm";
+import { Post } from "./Post";
 import { User } from "./User";
 
-@ObjectType()
 @Entity()
 export class Upvote extends BaseEntity {
-    @Field()
-    @Column({type: 'int'})
-    value: number
+  @Column({ type: "int" })
+  value: number;
 
-  @Field()
   @PrimaryColumn()
   userId: number;
 
-  @Field()
-  @ManyToOne(()=> User, user => user.upvotes)
+  @ManyToOne(() => User, (user) => user.upvotes)
   user: User;
 
-  @Field()
   @PrimaryColumn()
   postId: number;
 
-  @Field()
-  @ManyToOne(()=> Post, (post) => post.upvotes)
+  @ManyToOne(() => Post, (post) => post.upvotes)
   post: Post;
 }
