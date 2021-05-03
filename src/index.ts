@@ -9,28 +9,29 @@ import { UserResolver } from "./resolvers/user";
 import Redis from "ioredis";
 import session from "express-session";
 import connectRedis from "connect-redis";
-import cors from 'cors';
+import cors from "cors";
 // import { sendEmail } from "./utils/sendEmail";
 // import { User } from "./entities/User";
-import {createConnection} from 'typeorm'
+import { createConnection } from "typeorm";
 import { Post } from "./entities/Post";
 import { User } from "./entities/User";
-import path from 'path'
+import path from "path";
 import { Upvote } from "./entities/Upvote";
 import { createUserLoader } from "./utils/createUserLoader";
+import { createUpvoteLoader } from "./utils/createUpvoteLoader";
 
 const main = async () => {
   const conn = await createConnection({
-    type: 'postgres',
-    database: 'chakra',
-    username: 'postgres',
-    password: 'postgres',
+    type: "postgres",
+    database: "chakra",
+    username: "postgres",
+    password: "postgres",
     logging: true,
     synchronize: true,
-    migrations: [path.join(__dirname, './migrations/*')],
-    entities: [Post, User, Upvote]
+    migrations: [path.join(__dirname, "./migrations/*")],
+    entities: [Post, User, Upvote],
   });
-  await conn.runMigrations()
+  await conn.runMigrations();
 
   // await Post.delete({})
 
@@ -39,10 +40,12 @@ const main = async () => {
   const RedisStore = connectRedis(session);
   const redis = new Redis();
 
-  app.use(cors({
-    origin: 'http://localhost:3000',
-    credentials: true
-  }))
+  app.use(
+    cors({
+      origin: "http://localhost:3000",
+      credentials: true,
+    })
+  );
 
   app.use(
     session({
@@ -68,7 +71,13 @@ const main = async () => {
       resolvers: [HelloResolver, PostResolver, UserResolver],
       validate: false,
     }),
-    context: ({ req, res }) => ({ req, res, redis, userLoader: createUserLoader() }),
+    context: ({ req, res }) => ({
+      req,
+      res,
+      redis,
+      userLoader: createUserLoader(),
+      upvoteLoader: createUpvoteLoader(),
+    }),
   });
 
   apolloServer.applyMiddleware({
